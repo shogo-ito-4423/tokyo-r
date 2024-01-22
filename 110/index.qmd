@@ -1,0 +1,162 @@
+---
+title: |
+    | RMarkdownで
+    | 論文作成したときの
+    | つまずき3選
+subtitle: Tokyo.R/110
+author: shogo-ito-4423
+format: 
+    revealjs:
+        fontsize: 24px
+editor: visual
+---
+
+## 自己紹介
+
+### shogo-ito-4423(伊藤匠梧)
+
+-   社会学専攻修了
+    -   学力調査データ(例: PISA)を(見よう見まねで)多変量解析していました
+-   現職: システムエンジニア
+    -   Rやデータ分析とは離れた業務です
+-   LT初参加です
+
+## 概要
+
+-   RMarkdownで日本語の論文を作成した際に、情報にたどり着くまで時間がかかったものをピックアップしました。
+-   ブックマークの整理を兼ねた発表です。
+-   一瞬で終わります。本当に個人的な記録です。
+
+## 実際の設定
+
+-   見返すと冗長なところが多い気がします。
+    -   `header-includes`に詰め込まず、もっとフロントマターに直接設定すべきだった。
+
+```{yaml}
+#| echo: true
+
+# yamlフロントマター
+title: |
+    タイトル1  
+    タイトル2
+subtitle: |
+    —サブタイトル—
+author: |
+    所属  
+    氏名
+output:
+    bookdown::pdf_document2:
+        latex_engine: xelatex
+        toc: true
+        keep_tex: true
+        fig_caption: yes
+documentclass: bxjsarticle
+classoption: a4paper, titlepage, 11pt
+header-includes:
+    - \usepackage{zxjatype}
+    - \usepackage{指定のbibtexスタイル}
+    - \setjamainfont{IPAexMincho}
+    - \setcounter{secnumdepth}{2}
+    - \setlength{\parindent}{\Cwd}
+    - \setpagelayout{top=10truemm, bottom=15truemm, left=25truemm, right=25truemm}
+```
+
+```{r}
+#| echo: true
+
+# 初期設定コードチャンク
+options(tinytex.latexmk.emulation = F) # すでに入っていたTeX Liveを利用したため
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE
+, dev = "cairo_pdf", dev.args = list(family = "IPAexMincho"))
+```
+
+-   こちらの記事にある設定がより簡潔です。
+    -   [R Markdown（とXeLaTeX）で日本語レポート（第2弾） #LaTeX - Qiita](https://qiita.com/MTRBEKTCBT/items/3c9fe4bc733602f6c44d)
+
+## 表紙
+
+-   タイトルの改行は行末に(スペース2つ)もしくは行頭に`|`をつける。
+
+```{yaml}
+#| echo: true
+
+title: |
+    タイトル1（この後ろにスペース2つ)  
+    タイトル2
+author: |
+    著者1（この後ろにスペース2つ)  
+    著者2
+```
+
+or
+
+```{yaml}
+#| echo: true
+
+title: |
+    | タイトル1
+    | タイトル2
+author: |
+    | 著者1
+    | 著者2
+```
+
+## 図の出力
+
+-   PDFで図を出力する。
+-   knit時のグラフィックデバイスに`cairo_pdf`を指定すと、うまく日本語が出力できる。
+
+```{r}
+#| echo: true
+
+knitr::opts_chunk$set(dev = "cairo_pdf", dev.args = list(family = "IPAexMincho"))
+```
+
+or
+
+```{yaml}
+#| echo: true
+
+output: 
+    bookdown::pdf_document2:
+        dev: cairo_pdf
+```
+
+-   RStudio側のグラフィックデバイスを`ragg`にする(Mac)。
+    -   PDF出力には直接関係ないが、RStudioでプレビューするときに日本語が出力された状態で確認できる。
+
+## 相互参照
+
+-   （そもそも）bookdownでないと相互参照が利用できない。
+-   bookdownの相互参照を利用するときは、チャンク名に利用できる記号は`/`と`-`のみ。
+
+### OK
+
+-   `{r figure/1}` = `\@ref(fig:figure/1)`
+-   `{r figure-1}` = `\@ref(fig:figure-1)`
+
+### NG
+
+-   `{r figure_1}` = `\@ref(fig:figure_1)`
+
+## おわり
+
+-   使い続けるにはまだ不安定ですが、なんとか脱「Wordにコピペ」を達成できました。
+-   誤りやより良い方法がありましたら、教えて頂けると嬉しいです。
+
+## 参考資料
+
+### 表紙
+
+-   [pandocでlatexを生成するときに、titleで改行できるようにする。](https://zenn.dev/t4aru/scraps/452be6fe2ccb55)
+-   [RmarkdwonのYAMLフロントマターで titleとか authorとか 改行する \| Atusy's blog](https://blog.atusy.net/2018/10/27/linbreaks-in-yaml-front-matter-of-rmd/)
+-   [6.3 表紙ページにロゴを置く \| R Markdown クックブック](https://gedevan-aleksizde.github.io/rmarkdown-cookbook/latex-logo.html)
+
+### 図の出力
+
+-   [Rで解析:RStudioのR MarkDownのPDFで日本語を扱う環境設定](https://www.karada-good.net/analyticsr/r-633/)
+-   [Rで解析：MACとWindowsでRstudioのグラフの日本語文字化けを防ぐ簡単な方法](https://www.karada-good.net/analyticsr/r-58/)
+
+### 相互参照
+
+-   [bookdownで図の相互参照が機能しない - 戯言日記](https://doubtpad.hatenablog.com/entry/2022/04/18/203616)
